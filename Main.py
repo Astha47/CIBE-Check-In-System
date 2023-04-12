@@ -115,15 +115,24 @@ while True:
                     if JumlahTotal <MaxCapacity:
                         log += [[id,'','FTSL']]
                         print('Mendapat tempat duduk')
+                        # Kirim data untuk menjalankan aktuator bernilai true
+                        #
                     else:
                         log += [['',id,'FTSL']]
                         print('waiting')
+                        # Kirim data untuk menjalankan aktuator bernilai true
+                        #
                     logs += [[id,str(datetime.datetime.now()),'']]
                 else:
                     if JumlahTotal < MaxCapacity and JumlahNonFTSL < MaxNonFTSL:
                         log += [[id,'','Non-FTSL']]
+                        print('Dipersilahkan masuk')
+                        # Kirim data untuk menjalankan aktuator bernilai true
+                        #
                     else:
                         print('ditolak')
+                        # Kirim data untuk menjalankan aktuator bernilai False
+                        #
 
             elif status == 'Registered':
                 # Mengecek apakah ada orang di waiting
