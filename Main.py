@@ -7,17 +7,129 @@
 
 import serial
 import time
+import csv
+import datetime
 
-ser = serial.Serial('COM4', 9600)  # buka koneksi serial dengan port USB dan baudrate 9600
+# Mendapatkan waktu lokal terkini
+waktu_lokal = datetime.datetime.now()
+
+# INISIASI VARIABEL
+MaxCapacity = 26
+MaxNonFTSL = 9
+
+ser = serial.Serial('COM8', 9600)  # buka koneksi serial dengan port USB dan baudrate 9600
+
+def menulisLogs(id,logs):
+    # Mencari keberadaan logs
+    logsStatus = False
+    idlogs = 0
+    for i in range(len(logs)):
+        if logs[i][0] == id:
+            if logs[i][2]:
+                logs[i][2] = str(datetime.datetime.now())
+                logsStatus = True
+                break
+    
+    if logsStatus == False:
+        logs += [[id,str(datetime.datetime.now()),'']]
+    tulis_matriks_ke_file(logs,'src/logs.csv')
+
+def tulis_matriks_ke_file(matrix, name_file):
+    with open(name_file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        for row in matrix:
+            writer.writerow(row)
+
+
 
 while True:
     if ser.in_waiting > 0:  # jika ada data yang tersedia di buffer
-        data = ser.readline().decode().rstrip()  # baca data dari serial dan hapus karakter newline
-        print(data)  # tampilkan data di console
+        id = ser.readline().decode().rstrip()  # baca data dari serial dan hapus karakter newline
+        print(id)  # tampilkan data di console
+
+        #Bagian validasi dan pengecekan
+
+        # Load Data Utama ID
+        DataMahasiswa = []
+        with open('src/IDMahasiswa.csv') as csvfile:
+            reader = csv.reader(csvfile, delimiter=";")
+            next(reader, None)
+            # Loop melalui baris-baris data
+            for row in reader:
+                # Tambahkan data ke dalam list
+                DataMahasiswa.append(row)
+
+        # Load Data Log
+        log = []
+        with open('src/log.csv') as csvfile:
+            reader = csv.reader(csvfile, delimiter=";")
+            # Loop melalui baris-baris data
+            for row in reader:
+                # Tambahkan data ke dalam list
+                log.append(row)
+        
+        # Load Data Logs
+        logs = []
+        with open('src/logs.csv') as csvfile:
+            reader = csv.reader(csvfile, delimiter=";")
+            # Loop melalui baris-baris data
+            for row in reader:
+                # Tambahkan data ke dalam list
+                log.append(row)
+
+        # Mencari validasi ID
+        for i in range(len(DataMahasiswa)):
+            found = False
+            if id == DataMahasiswa[i][0]:
+                found = True
+                datamasuk = DataMahasiswa[i]
+                break
+        
+        # Mencari ID di log
+        if found:
+            # Cari di log masuk
+            status = 'Unregistered'
+            for i in range(len(log)):
+                for j in range(2):
+                    if log[i][j] == id:
+                        # Hapus ID
+                        log[i][j] == ''
+                        status = 'Registered'
+                        # Menulis logs
+                        logs = menulisLogs(id,logs)
+                        # Kirim data untuk menjalankan aktuator bernilai true
+                        #
+            
+            if status == 'Unregistered':
+                # Hitung jumlah orang yang ada di dalam
+                JumlahOrang = 0
+                for i in range(len(log)):
+                    if log[i][0]:
+                        JumlahOrang += 1
+            elif status == 'Registered':
+                # Mengecek apakah ada orang di waiting
+                AdaWaiting = False
+                idWaiting = 0
+                for i in range(len(log)):
+                    if log[i][1]:
+                        AdaWaiting = True
+                        idWaiting = i
+                        break
+                if AdaWaiting:
+                    log += [[log[idWaiting][1],]]
+                    log[idWaiting][1] = ''
+                
+
+            
+        
+        
+
+        
     else:
         print("waiting data")
         time.sleep(5)
 
+#debug
 
 
 # install module :pip install pybluez (kemungkinan tidak bisa karena outdated)
