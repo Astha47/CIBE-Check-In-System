@@ -102,10 +102,29 @@ while True:
             
             if status == 'Unregistered':
                 # Hitung jumlah orang yang ada di dalam
-                JumlahOrang = 0
+                JumlahFTSL = 0
+                JumlahNonFTSL = 0
                 for i in range(len(log)):
-                    if log[i][0]:
-                        JumlahOrang += 1
+                    if log[i][2] == "FTSL":
+                        JumlahFTSL += 1
+                    elif log[i][2] == "Non-FTSL":
+                        JumlahNonFTSL += 1
+                JumlahTotal = JumlahFTSL + JumlahNonFTSL
+
+                if datamasuk[3] == "FTSL":
+                    if JumlahTotal <MaxCapacity:
+                        log += [[id,'','FTSL']]
+                        print('Mendapat tempat duduk')
+                    else:
+                        log += [['',id,'FTSL']]
+                        print('waiting')
+                    logs += [[id,str(datetime.datetime.now()),'']]
+                else:
+                    if JumlahTotal < MaxCapacity and JumlahNonFTSL < MaxNonFTSL:
+                        log += [[id,'','Non-FTSL']]
+                    else:
+                        print('ditolak')
+
             elif status == 'Registered':
                 # Mengecek apakah ada orang di waiting
                 AdaWaiting = False
@@ -116,14 +135,13 @@ while True:
                         idWaiting = i
                         break
                 if AdaWaiting:
-                    log += [[log[idWaiting][1],]]
+                    log += [[log[idWaiting][1],'',log[idWaiting][2]]]
                     log[idWaiting][1] = ''
-                
+                    log[idWaiting][2] = ''
 
-            
-        
-        
-
+            tulis_matriks_ke_file(log,'src/log.csv')
+        else:
+            print('ID Tidak dikenali')
         
     else:
         print("waiting data")
