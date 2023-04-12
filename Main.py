@@ -23,6 +23,7 @@ while True:
 # install module :pip install pybluez (kemungkinan tidak bisa karena outdated)
 # jika gagal silakan install dari : https://github.com/pybluez/pybluez
 # untuk install manual silakan buka cmd pada folder instalasi dan ketikkan : py setup.py install
+# kondisi : aku masih gagal instalasi
 """
 import bluetooth
 
