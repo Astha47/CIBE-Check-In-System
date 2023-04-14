@@ -17,7 +17,7 @@ waktu_lokal = datetime.datetime.now()
 MaxCapacity = 26
 MaxNonFTSL = 9
 
-ser = serial.Serial('COM8', 9600)  # buka koneksi serial dengan port USB dan baudrate 9600
+ser = serial.Serial('COM9', 9600)  # buka koneksi serial dengan port USB dan baudrate 9600
 
 def menulisLogs(id,logs):
     # Mencari keberadaan logs
@@ -44,8 +44,10 @@ def tulis_matriks_ke_file(matrix, name_file):
 
 while True:
     if ser.in_waiting > 0:  # jika ada data yang tersedia di buffer
-        id = ser.readline().decode().rstrip()  # baca data dari serial dan hapus karakter newline
+        print("Ada data")
+        id = ser.readline().decode().strip()  # baca data dari serial 
         print(id)  # tampilkan data di console
+        print("membaca data")
 
         #Bagian validasi dan pengecekan
 
@@ -154,7 +156,7 @@ while True:
         
     else:
         print("waiting data")
-        time.sleep(5)
+        time.sleep(1)
 
 #debug
 
