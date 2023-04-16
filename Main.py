@@ -43,9 +43,9 @@ def tulis_matriks_ke_file(matrix, name_file):
 
 
 while True:
-    if ser.in_waiting > 0:  # jika ada data yang tersedia di buffer
+    id = ser.readline().decode('latin-1').strip()  # baca data dari serial 
+    if id:  # jika ada data yang tersedia di buffer
         print("Ada data")
-        id = ser.readline().decode().strip()  # baca data dari serial 
         print(id)  # tampilkan data di console
         print("membaca data")
 
@@ -64,7 +64,7 @@ while True:
         # Load Data Log
         log = []
         with open('src/log.csv') as csvfile:
-            reader = csv.reader(csvfile, delimiter=";")
+            reader = csv.reader(csvfile, delimiter=",")
             # Loop melalui baris-baris data
             for row in reader:
                 # Tambahkan data ke dalam list
@@ -73,7 +73,7 @@ while True:
         # Load Data Logs
         logs = []
         with open('src/logs.csv') as csvfile:
-            reader = csv.reader(csvfile, delimiter=";")
+            reader = csv.reader(csvfile, delimiter=",")
             # Loop melalui baris-baris data
             for row in reader:
                 # Tambahkan data ke dalam list
@@ -91,6 +91,7 @@ while True:
         if found:
             # Cari di log masuk
             status = 'Unregistered'
+            print("log =",log)
             for i in range(len(log)):
                 for j in range(2):
                     if log[i][j] == id:
@@ -154,6 +155,10 @@ while True:
             tulis_matriks_ke_file(log,'src/log.csv')
         else:
             print('ID Tidak dikenali')
+            print('ditolak')
+            # Kirim data untuk menjalankan aktuator bernilai deny
+            ser.write(b'deny\n')
+
         
     else:
         print("waiting data")
