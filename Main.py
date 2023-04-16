@@ -96,11 +96,12 @@ while True:
                     if log[i][j] == id:
                         # Hapus ID
                         log[i][j] == ''
+                        log[i][2] == ''
                         status = 'Registered'
                         # Menulis logs
                         logs = menulisLogs(id,logs)
-                        # Kirim data untuk menjalankan aktuator bernilai true
-                        #
+                        # Kirim data untuk menjalankan aktuator bernilai allow
+                        ser.write(b'allow\n')
             
             if status == 'Unregistered':
                 # Hitung jumlah orang yang ada di dalam
@@ -117,24 +118,24 @@ while True:
                     if JumlahTotal <MaxCapacity:
                         log += [[id,'','FTSL']]
                         print('Mendapat tempat duduk')
-                        # Kirim data untuk menjalankan aktuator bernilai true
-                        #
+                        # Kirim data untuk menjalankan aktuator bernilai allow
+                        ser.write(b'allow\n')
                     else:
                         log += [['',id,'FTSL']]
                         print('waiting')
-                        # Kirim data untuk menjalankan aktuator bernilai true
-                        #
+                        # Kirim data untuk menjalankan aktuator bernilai allow
+                        ser.write(b'allow\n')
                     logs += [[id,str(datetime.datetime.now()),'']]
                 else:
                     if JumlahTotal < MaxCapacity and JumlahNonFTSL < MaxNonFTSL:
                         log += [[id,'','Non-FTSL']]
                         print('Dipersilahkan masuk')
-                        # Kirim data untuk menjalankan aktuator bernilai true
-                        #
+                        # Kirim data untuk menjalankan aktuator bernilai allow
+                        ser.write(b'allow\n')
                     else:
                         print('ditolak')
-                        # Kirim data untuk menjalankan aktuator bernilai False
-                        #
+                        # Kirim data untuk menjalankan aktuator bernilai deny
+                        ser.write(b'deny\n')
 
             elif status == 'Registered':
                 # Mengecek apakah ada orang di waiting
