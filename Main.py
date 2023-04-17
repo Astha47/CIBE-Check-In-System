@@ -13,8 +13,8 @@ import os
 waktu_lokal = datetime.datetime.now()
 
 # INISIASI VARIABEL
-MaxCapacity = 26
-MaxNonFTSL = 9
+MaxCapacity = 1
+MaxNonFTSL = 1
 
 ser = serial.Serial('COM9', 9600)  # buka koneksi serial dengan port USB dan baudrate 9600
 
@@ -32,6 +32,15 @@ def menulisLogs(nim,logs):
     if logsStatus == False:
         logs += [[nim,str(datetime.datetime.now()),'']]
     tulis_matriks_ke_file(logs,'src/logs.csv')
+    return logs
+
+def pembersihLog(log):
+    newLog = []
+    for row in log:
+        if row[2] != '':
+            #print(row[2])
+            newLog += [row]
+    return newLog
 
 def tulis_matriks_ke_file(matrix, name_file):
     with open(name_file, 'w', newline='') as csvfile:
@@ -85,6 +94,11 @@ while True:
         # Load Data Log
         log = loadData('log.csv',True)
 
+        # Pembersihan Log
+        log = pembersihLog(log)
+        tulis_matriks_ke_file(log,'src/log.csv')
+
+
         #DEBUG
         #print('Log awal : ',log)
         
@@ -125,6 +139,7 @@ while True:
                         tulis_matriks_ke_file(log,'src/log.csv')
 
                         # Tuliskan pesan pada layar
+                        print()
                         print('Logout berhasil, sampai berjumpa lagi',datamasuk[2]+'!')
 
                         # DEBUG
@@ -136,18 +151,45 @@ while True:
                         # Menulis logs
                         logs = menulisLogs(datamasuk[1],logs)
 
-                        # Kirim data untuk menjalankan aktuator bernilai allow
-                        ser.write(b'allow\n')
 
                         # DEBUG
                         #print("log = ", log)
 
+                        #Memindahkan Waitinglist apabila ada dan ada kursi kosong
+                        JumlahSit = 0
+                        for i in range(1,len(log)):
+                            if log[i][0] != '':
+                                JumlahSit += 1
+                        
+                        #print('Jumlah orang di dalam ruangan = ',JumlahSit)
+
+                        waitingID = -1
+                        #print('log : ',log)
+                        for i in range(1,len(log)):
+                            #print('melakukan loop ke-',i)
+                            #print('data yang terbaca adalah : ',log[i][1])
+                            if (log[i][1]) != '':
+                                #print('Melakukan penulisan waitingID yakni ',i)
+                                waitingID = (i)
+                                break
+                        
+                        #print('WaitingID = ',waitingID)
+                        
+                        if JumlahSit < MaxCapacity and waitingID != -1:
+                            print("Melakukan switching...")
+                            log[waitingID][0] = log[waitingID][1]
+                            log[waitingID][1] = ''
+                            tulis_matriks_ke_file(log,'src/log.csv')
+
+                        # Kirim data untuk menjalankan aktuator bernilai allow
+                        ser.write(b'allow\n')
+
                         # Menunggu Sensor Pendeteksi / Input Tombol
                         passSensor = ser.readline().decode().strip()
-                        print("passSensor = ",passSensor)
+                        #print("passSensor = ",passSensor)
                         if passSensor:
                             os.system('cls')
-            
+                        
             if status == 'Unregistered':
                 # Hitung jumlah orang yang ada di dalam
                 JumlahFTSL = 0
@@ -164,8 +206,22 @@ while True:
 
                 if datamasuk[3] == "FTSL":
                     if JumlahTotal <MaxCapacity:
+
+                        #Menulis Log
                         log += [[id,'','FTSL']]
+                        tulis_matriks_ke_file(log,"src/log.csv")
+
+                        #DEBUG
+                        #print("logsAwal = ",logs)
+
+                        # Menulis logs
+                        logs = menulisLogs(datamasuk[1],logs)
+
+                        #print("logsAkhir = ",logs)
+
+                        print()
                         print('Selamat datang',datamasuk[2],'di Co-Working Space CIBE')
+                        print('Anda mendapatkan prioritas kursi di ruangan ini')
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
 
@@ -175,7 +231,13 @@ while True:
                             os.system('cls')
                     else:
                         log += [['',id,'FTSL']]
-                        print('waiting')
+                        tulis_matriks_ke_file(log,"src/log.csv")
+
+                        # Menulis logs
+                        logs = menulisLogs(datamasuk[1],logs)
+                        print()
+                        print('Selamat datang',datamasuk[2],'di Co-Working Space CIBE')
+                        print('Kursi di ruangan ini penuh, anda diperbolehkan masuk dengan slot kursi kosong')
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
 
@@ -187,7 +249,7 @@ while True:
                             os.system('cls')
                     
                     # Menulis logs
-                    logs = menulisLogs(datamasuk[1],logs)
+                    #logs = menulisLogs(datamasuk[1],logs)
 
                     # DEBUG
                     #print("logs = ",logs)
@@ -216,7 +278,9 @@ while True:
                         if passSensor:
                             os.system('cls')
                     else:
-                        print('ditolak')
+                        print()
+                        print('Mohon maaf, Co-Working Space CIBE dalam kondisi penuh')
+                        print('Anda tidak diperkenankan masuk')
                         # Kirim data untuk menjalankan aktuator bernilai deny
                         ser.write(b'deny\n')
                         time.sleep(3)
