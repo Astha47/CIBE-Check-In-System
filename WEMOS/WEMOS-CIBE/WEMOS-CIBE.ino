@@ -8,6 +8,7 @@
 #define INDIKATOR       27
 #define DENY            17
 boolean terbaca = false;
+boolean ready = true;
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);  // Inisiasi RFID RC522
 
@@ -25,51 +26,45 @@ void setup() {
 }
 
 void loop() {
+  
+  if (ready){
 
-  if (!terbaca){
-    delay(1000);
-    digitalWrite(INDIKATOR, HIGH); // Hidupkan LED
-    delay(1000);
-    digitalWrite(INDIKATOR, LOW); // Hidupkan LED
-  }
-
-  if (terbaca && digitalRead(BUTTON_PIN) == LOW) {  // jika tombol ditekan (nilai pin = LOW)
-    terbaca = false;
-    digitalWrite(INDIKATOR, LOW);  // matikan LED
-  }     
-
-  if (terbaca){
-    String inputString = Serial.readStringUntil('\n');
-    if (inputString == "allow") {
-      digitalWrite(INDIKATOR, HIGH);
-    } else if (inputString == "deny") {
-      digitalWrite(DENY, HIGH);
-      delay(2000);
-      digitalWrite(DENY, LOW);
-      terbaca = false;
+    if (terbaca){
+      String inputString = Serial.readStringUntil('\n');
+      if (inputString == "allow") {
+        digitalWrite(LED_PIN, HIGH);
+        ready = false;
+      } else if (inputString == "deny") {
+        digitalWrite(DENY, HIGH);
+        delay(2000);
+        digitalWrite(DENY, LOW);
+        terbaca = false;
+      }
+    } else {
+      delay(1000);
+      digitalWrite(INDIKATOR, HIGH); // Hidupkan LED
+      delay(1000);
+      digitalWrite(INDIKATOR, LOW); // Hidupkan LED
     }
-  }
 
-  if (terbaca && digitalRead(BUTTON_PIN) == LOW) {  // jika tombol ditekan (nilai pin = LOW)
-    terbaca = false;
-    digitalWrite(INDIKATOR, LOW);  // matikan LED
-  }     
-
-  if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial() && !terbaca) {
-    // Jika ada kartu yang terdeteksi, baca ID-nya
-    //Serial.print("ID Kartu: "); 
-    for (byte i = 0; i < mfrc522.uid.size; i++) {
-      Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
-      Serial.print(mfrc522.uid.uidByte[i], HEX);
+    if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial() && !terbaca) {
+      // Jika ada kartu yang terdeteksi, baca ID-nya
+      //Serial.print("ID Kartu: "); 
+      for (byte i = 0; i < mfrc522.uid.size; i++) {
+        Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
+        Serial.print(mfrc522.uid.uidByte[i], HEX);
+      }
+      Serial.println();
+      terbaca = true;
+      //digitalWrite(LED_PIN, HIGH); // Hidupkan LED
+      //delay(1000);                 // Tunda selama 1 detik
     }
-    Serial.println();
-    terbaca = true;
-    //digitalWrite(LED_PIN, HIGH); // Hidupkan LED
-    //delay(1000);                 // Tunda selama 1 detik
-  }
-  if (terbaca && digitalRead(BUTTON_PIN) == LOW) {  // jika tombol ditekan (nilai pin = LOW)
+  } else {
+    if (terbaca && digitalRead(BUTTON_PIN) == LOW) {  // jika tombol ditekan (nilai pin = LOW)
     terbaca = false;
-    digitalWrite(INDIKATOR, LOW);  // matikan LED
-  }       
+    digitalWrite(LED_PIN, LOW);  // matikan LED
+    ready = true;
+    }      
+  }
   mfrc522.PICC_HaltA();         // Berhenti membaca kartu
 }

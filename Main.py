@@ -43,7 +43,7 @@ def tulis_matriks_ke_file(matrix, name_file):
 def loadData(name,header):
     data = []
     with open('src/'+name) as csvfile:
-            reader = csv.reader(csvfile, delimiter=";")
+            reader = csv.reader(csvfile, delimiter=",")
             if header:
                 # Loop melalui baris-baris data
                 for row in reader:
@@ -70,7 +70,7 @@ while True:
 
         # Load Data Utama ID
         DataMahasiswa = loadData('IDMahasiswa.csv',False)
-        #print("Data Mahasiswa : ",DataMahasiswa)
+        print("Data Mahasiswa : ",DataMahasiswa)
 
         # Load Data Log
         log = loadData('log.csv',True)
@@ -91,7 +91,11 @@ while True:
         # Mencari ID di log
         if found:
             # Cari di log masuk
+
+            # Initializing status
             status = 'Unregistered'
+
+
             print("log =",log)
             for i in range(len(log)):
                 for j in range(2):
@@ -101,7 +105,7 @@ while True:
                         log[i][2] == ''
                         status = 'Registered'
                         # Menulis logs
-                        logs = menulisLogs(id,logs)
+                        #logs = menulisLogs(id,logs) ===================
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
             
@@ -153,7 +157,7 @@ while True:
                     log[idWaiting][1] = ''
                     log[idWaiting][2] = ''
 
-            tulis_matriks_ke_file(log,'src/log.csv')
+            #tulis_matriks_ke_file(log,'src/log.csv') ============
         else:
             print('ID Tidak dikenali')
             print('ditolak')
