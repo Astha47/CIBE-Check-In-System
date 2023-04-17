@@ -135,7 +135,7 @@ while True:
                 else:
                     if JumlahTotal < MaxCapacity and JumlahNonFTSL < MaxNonFTSL:
                         log += [[id,'','Non-FTSL']]
-                        print('Dipersilahkan masuk')
+                        print('Dipersilahkan masuk, selamat datang',datamasuk[2])
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
                     else:
