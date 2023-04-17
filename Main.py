@@ -13,7 +13,7 @@ import os
 waktu_lokal = datetime.datetime.now()
 
 # INISIASI VARIABEL
-MaxCapacity = 1
+MaxCapacity = 2
 MaxNonFTSL = 1
 
 ser = serial.Serial('COM9', 9600)  # buka koneksi serial dengan port USB dan baudrate 9600
