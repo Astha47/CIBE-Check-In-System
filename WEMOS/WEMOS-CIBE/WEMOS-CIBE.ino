@@ -63,6 +63,7 @@ void loop() {
     if (terbaca && digitalRead(BUTTON_PIN) == LOW) {  // jika tombol ditekan (nilai pin = LOW)
     terbaca = false;
     digitalWrite(LED_PIN, LOW);  // matikan LED
+    Serial.println("entityPass");
     ready = true;
     }      
   }

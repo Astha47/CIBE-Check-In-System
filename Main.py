@@ -20,19 +20,19 @@ MaxNonFTSL = 9
 
 ser = serial.Serial('COM9', 9600)  # buka koneksi serial dengan port USB dan baudrate 9600
 
-def menulisLogs(id,logs):
+def menulisLogs(nim,logs):
     # Mencari keberadaan logs
     logsStatus = False
     idlogs = 0
     for i in range(len(logs)):
-        if logs[i][0] == id:
-            if logs[i][2]:
+        if logs[i][0] == nim:
+            if (logs[i][2]) == '':
                 logs[i][2] = str(datetime.datetime.now())
                 logsStatus = True
                 break
     
     if logsStatus == False:
-        logs += [[id,str(datetime.datetime.now()),'']]
+        logs += [[nim,str(datetime.datetime.now()),'']]
     tulis_matriks_ke_file(logs,'src/logs.csv')
 
 def tulis_matriks_ke_file(matrix, name_file):
@@ -58,25 +58,37 @@ def loadData(name,header):
                     data.append(row)
     return data
 
-
+os.system('cls')
 
 while True:
+    print("CIBE Check-In System V-Alpha")
+    print("Silakan tempelkan kartu Anda!")
+    print()
     id = ser.readline().decode('latin-1').strip()  # baca data dari serial 
     if id:  # jika ada data yang tersedia di buffer
         os.system('cls')
-        print("Ada data")
-        print(id)  # tampilkan data di console
-        print("membaca data")
+        print("CIBE Check-In System V-Alpha")
+        
+        print("============================")
+        print("Kartu terbaca")
+        #print(id)  # tampilkan data di console
+        print()
+        print("Memverifikasi data....")
+        print("============================")
 
         #Bagian validasi dan pengecekan
 
         # Load Data Utama ID
         DataMahasiswa = loadData('IDMahasiswa.csv',False)
-        print("Data Mahasiswa : ",DataMahasiswa)
+
+        #DEBUG
+        #print("Data Mahasiswa : ",DataMahasiswa)
 
         # Load Data Log
         log = loadData('log.csv',True)
-        print('Log awal : ',log)
+
+        #DEBUG
+        #print('Log awal : ',log)
         
         # Load Data Logs
         logs = loadData('logs.csv',True)
@@ -118,17 +130,25 @@ while True:
                         print('Logout berhasil, sampai berjumpa lagi',datamasuk[2]+'!')
 
                         # DEBUG
-                        print('ID Terdapat dalam log!')
-                        print('lokasi baris = ',i)
-                        print('lokasi kolom = ',j)
+                        #print('ID Terdapat dalam log!')
+                        #print('lokasi baris = ',i)
+                        #print('lokasi kolom = ',j)
                         status = 'Registered'
+
                         # Menulis logs
-                        #logs = menulisLogs(id,logs) ===================
+                        logs = menulisLogs(datamasuk[1],logs)
+
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
 
                         # DEBUG
-                        print("log = ", log)
+                        #print("log = ", log)
+
+                        # Menunggu Sensor Pendeteksi / Input Tombol
+                        passSensor = ser.readline().decode().strip()
+                        print("passSensor = ",passSensor)
+                        if passSensor:
+                            os.system('cls')
             
             if status == 'Unregistered':
                 # Hitung jumlah orang yang ada di dalam
@@ -150,17 +170,29 @@ while True:
                         print('Selamat datang',datamasuk[2],'di Co-Working Space CIBE')
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
+
+                        # Menunggu Sensor Pendeteksi / Input Tombol
+                        passSensor = ser.readline().decode().strip()
+                        if passSensor:
+                            os.system('cls')
                     else:
                         log += [['',id,'FTSL']]
                         print('waiting')
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
+
+
+
+                        # Menunggu Sensor Pendeteksi / Input Tombol
+                        passSensor = ser.readline().decode().strip()
+                        if passSensor:
+                            os.system('cls')
                     
-                    # Tulis data masuk pada logs
-                    logs += [[id,str(datetime.datetime.now()),'']]
+                    # Menulis logs
+                    logs = menulisLogs(datamasuk[1],logs)
 
                     # DEBUG
-                    print("logs = ",logs)
+                    #print("logs = ",logs)
                 else:
                     if JumlahTotal < MaxCapacity and JumlahNonFTSL < MaxNonFTSL:
 
@@ -169,19 +201,28 @@ while True:
                         # Tulis LOG pada penyimpanan
                         tulis_matriks_ke_file(log,'src/log.csv')
                         # Pesan pada layar
+                        print()
                         print('Dipersilahkan masuk, selamat datang',datamasuk[2]+"!")
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
 
                         # Tulis data masuk pada logs
-                        logs += [[id,str(datetime.datetime.now()),'']]
+                        # Menulis logs
+                        logs = menulisLogs(datamasuk[1],logs)
                         # DEBUG
-                        print("logs = ",logs)
-                        print("log  = ",log)
+                        #print("logs = ",logs)
+                        #print("log  = ",log)
+
+                        # Menunggu Sensor Pendeteksi / Input Tombol
+                        passSensor = ser.readline().decode().strip()
+                        if passSensor:
+                            os.system('cls')
                     else:
                         print('ditolak')
                         # Kirim data untuk menjalankan aktuator bernilai deny
                         ser.write(b'deny\n')
+                        time.sleep(3)
+                        os.system('cls')
 
             elif status == 'Registered':
                 # Mengecek apakah ada orang di waiting
@@ -199,14 +240,16 @@ while True:
 
             #tulis_matriks_ke_file(log,'src/log.csv') ============
         else:
-            print('ID Tidak dikenali')
-            print('ditolak')
+            print()
+            print('ID Tidak dikenali, Coba lagi!')
+            print('Akses masuk ditolak')
             # Kirim data untuk menjalankan aktuator bernilai deny
             ser.write(b'deny\n')
+            time.sleep(3)
+            os.system('cls')
 
         
     else:
-        print("waiting data")
         time.sleep(1)
 
 #debug
