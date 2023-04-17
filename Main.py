@@ -1,5 +1,3 @@
-# Code By ChatGPT
-
 # Menggunakan serial port (USB)
 # instal terlebh dahulu module serial
 # sintaks di terminal/powershell : pip install pyserial
