@@ -33,6 +33,11 @@ void loop() {
     digitalWrite(INDIKATOR, LOW); // Hidupkan LED
   }
 
+  if (terbaca && digitalRead(BUTTON_PIN) == LOW) {  // jika tombol ditekan (nilai pin = LOW)
+    terbaca = false;
+    digitalWrite(INDIKATOR, LOW);  // matikan LED
+  }     
+
   if (terbaca){
     String inputString = Serial.readStringUntil('\n');
     if (inputString == "allow") {
@@ -44,6 +49,11 @@ void loop() {
       terbaca = false;
     }
   }
+
+  if (terbaca && digitalRead(BUTTON_PIN) == LOW) {  // jika tombol ditekan (nilai pin = LOW)
+    terbaca = false;
+    digitalWrite(INDIKATOR, LOW);  // matikan LED
+  }     
 
   if (mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial() && !terbaca) {
     // Jika ada kartu yang terdeteksi, baca ID-nya

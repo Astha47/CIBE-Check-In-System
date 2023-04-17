@@ -1,6 +1,2 @@
-id;nim;nama;status
-CFB4DBA1;16522073;Anas Fathurrahman;Non-FTSL
-assas;23243434;sdsderd;2wewwe
-assas;23243434;sdsderd;2wewwe
-assas;23243434;sdsderd;2wewwe
-assas;23243434;sdsderd;2wewwe
+id,nim,nama,status
+CFB4DBA1,16522073,Anas Fathurrahman,Non-FTSL

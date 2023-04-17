@@ -1,4 +1,1 @@
-in,,
-CFB4DBA1,,Non-FTSL
-logs,time_in,time_out
-waiting,,status
+in,waiting,status

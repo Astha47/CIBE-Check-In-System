@@ -40,6 +40,23 @@ def tulis_matriks_ke_file(matrix, name_file):
         for row in matrix:
             writer.writerow(row)
 
+def loadData(name,header):
+    data = []
+    with open('src/'+name) as csvfile:
+            reader = csv.reader(csvfile, delimiter=";")
+            if header:
+                # Loop melalui baris-baris data
+                for row in reader:
+                    # Tambahkan data ke dalam list
+                    data.append(row)
+            else:
+                next(reader, None)
+                # Loop melalui baris-baris data
+                for row in reader:
+                    # Tambahkan data ke dalam list
+                    data.append(row)
+    return data
+
 
 
 while True:
@@ -52,32 +69,16 @@ while True:
         #Bagian validasi dan pengecekan
 
         # Load Data Utama ID
-        DataMahasiswa = []
-        with open('src/IDMahasiswa.csv') as csvfile:
-            reader = csv.reader(csvfile, delimiter=";")
-            next(reader, None)
-            # Loop melalui baris-baris data
-            for row in reader:
-                # Tambahkan data ke dalam list
-                DataMahasiswa.append(row)
+        DataMahasiswa = loadData('IDMahasiswa.csv',False)
+        #print("Data Mahasiswa : ",DataMahasiswa)
 
         # Load Data Log
-        log = []
-        with open('src/log.csv') as csvfile:
-            reader = csv.reader(csvfile, delimiter=",")
-            # Loop melalui baris-baris data
-            for row in reader:
-                # Tambahkan data ke dalam list
-                log.append(row)
+        log = loadData('log.csv',True)
+        #print('Log : ',log)
         
         # Load Data Logs
-        logs = []
-        with open('src/logs.csv') as csvfile:
-            reader = csv.reader(csvfile, delimiter=",")
-            # Loop melalui baris-baris data
-            for row in reader:
-                # Tambahkan data ke dalam list
-                log.append(row)
+        logs = loadData('logs.csv',True)
+        #print('Logs : ',logs)
 
         # Mencari validasi ID
         for i in range(len(DataMahasiswa)):
