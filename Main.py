@@ -9,6 +9,7 @@ import serial
 import time
 import csv
 import datetime
+import os
 
 # Mendapatkan waktu lokal terkini
 waktu_lokal = datetime.datetime.now()
@@ -62,6 +63,7 @@ def loadData(name,header):
 while True:
     id = ser.readline().decode('latin-1').strip()  # baca data dari serial 
     if id:  # jika ada data yang tersedia di buffer
+        os.system('cls')
         print("Ada data")
         print(id)  # tampilkan data di console
         print("membaca data")
@@ -74,7 +76,7 @@ while True:
 
         # Load Data Log
         log = loadData('log.csv',True)
-        #print('Log : ',log)
+        print('Log awal : ',log)
         
         # Load Data Logs
         logs = loadData('logs.csv',True)
@@ -96,18 +98,37 @@ while True:
             status = 'Unregistered'
 
 
-            print("log =",log)
+            #print("log =",log)
             for i in range(len(log)):
+
+                # DEBUG
+                #print("panjang log = ",len(log))
+                #print("pengecekan baris ke-",i,"dijalanlan.")
+
                 for j in range(2):
                     if log[i][j] == id:
                         # Hapus ID
-                        log[i][j] == ''
-                        log[i][2] == ''
+                        log[i][j] = ''
+                        log[i][2] = ''
+
+                        # Menuliskan log pada file
+                        tulis_matriks_ke_file(log,'src/log.csv')
+
+                        # Tuliskan pesan pada layar
+                        print('Logout berhasil, sampai berjumpa lagi',datamasuk[2]+'!')
+
+                        # DEBUG
+                        print('ID Terdapat dalam log!')
+                        print('lokasi baris = ',i)
+                        print('lokasi kolom = ',j)
                         status = 'Registered'
                         # Menulis logs
                         #logs = menulisLogs(id,logs) ===================
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
+
+                        # DEBUG
+                        print("log = ", log)
             
             if status == 'Unregistered':
                 # Hitung jumlah orang yang ada di dalam
@@ -120,10 +141,13 @@ while True:
                         JumlahNonFTSL += 1
                 JumlahTotal = JumlahFTSL + JumlahNonFTSL
 
+                # DEBUG
+                #print("Jumlah total : ",JumlahTotal)
+
                 if datamasuk[3] == "FTSL":
                     if JumlahTotal <MaxCapacity:
                         log += [[id,'','FTSL']]
-                        print('Mendapat tempat duduk')
+                        print('Selamat datang',datamasuk[2],'di Co-Working Space CIBE')
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
                     else:
@@ -131,13 +155,29 @@ while True:
                         print('waiting')
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
+                    
+                    # Tulis data masuk pada logs
                     logs += [[id,str(datetime.datetime.now()),'']]
+
+                    # DEBUG
+                    print("logs = ",logs)
                 else:
                     if JumlahTotal < MaxCapacity and JumlahNonFTSL < MaxNonFTSL:
+
+                        # Tambahkan LOG
                         log += [[id,'','Non-FTSL']]
-                        print('Dipersilahkan masuk, selamat datang',datamasuk[2])
+                        # Tulis LOG pada penyimpanan
+                        tulis_matriks_ke_file(log,'src/log.csv')
+                        # Pesan pada layar
+                        print('Dipersilahkan masuk, selamat datang',datamasuk[2]+"!")
                         # Kirim data untuk menjalankan aktuator bernilai allow
                         ser.write(b'allow\n')
+
+                        # Tulis data masuk pada logs
+                        logs += [[id,str(datetime.datetime.now()),'']]
+                        # DEBUG
+                        print("logs = ",logs)
+                        print("log  = ",log)
                     else:
                         print('ditolak')
                         # Kirim data untuk menjalankan aktuator bernilai deny
